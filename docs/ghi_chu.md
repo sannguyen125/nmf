@@ -1,0 +1,48 @@
+# Ghi chú kết quả chạy thử (để đưa vào báo cáo)
+
+## 1. NMF trên dữ liệu mô phỏng, thử nhiều seed
+
+Dữ liệu: `data/mo_phong.txt`, 9 câu thuộc 3 chủ đề. Câu 0, 3, 6 nói về pin; câu 1, 4, 7 nói về camera; câu 2, 5, 8 nói về giá. Sau tiền xử lý còn 30 từ, ma trận V có kích thước 30 × 9.
+
+Thiết lập: k = 3, max_iter = 200, TOL = 1e-4. Mỗi seed chạy `nmf()` một lần, sau đó `normalize()`. Một câu được xếp vào chủ đề có giá trị H lớn nhất ở cột của câu đó. Nhóm em coi là "tách đúng" khi 3 nhóm câu thu được trùng với 3 chủ đề ở trên.
+
+### 1.1. V là tf × idf, có chuẩn hóa L2 từng cột (cách đang dùng)
+
+| Seed | Loss cuối | Số vòng | Tách đúng | Top 5 từ mỗi chủ đề |
+|---|---|---|---|---|
+| 0 | 2.1079 | 12 | Có | chụp, camera, đẹp, chế_độ, chân_dung / giá, máy, hợp_lý, phân_khúc, đối_thủ / pin, điện_thoại, thời_lượng, phút, mươi |
+| 1 | 2.1091 | 14 | Có | chụp, camera, đẹp, chế_độ, xóa_phông / pin, thời_lượng, điện_thoại, mươi, phút / giá, máy, hợp_lý, đối_thủ, phân_khúc |
+| 2 | 2.1080 | 19 | Có | camera, chụp, đẹp, chế_độ, xóa_phông / giá, máy, hợp_lý, phân_khúc, đối_thủ / pin, thời_lượng, điện_thoại, mươi, sạc |
+| 3 | 2.1079 | 14 | Có | camera, chụp, đẹp, chân_dung, chế_độ / giá, máy, hợp_lý, mua, rẻ / pin, thời_lượng, điện_thoại, mươi, sạc |
+| 4 | 2.1080 | 22 | Có | camera, chụp, đẹp, chế_độ, xóa_phông / giá, máy, hợp_lý, phân_khúc, đối_thủ / pin, thời_lượng, điện_thoại, mươi, sạc |
+
+Cả 5 seed đều tách đúng, loss chênh nhau rất ít. `fit_nmf()` với 5 seed này chọn seed 3, là seed có loss nhỏ nhất.
+
+Nhóm em chạy thêm seed 0 đến 99 thì thấy 6 seed bị sai:
+
+| Seed | Loss cuối | Số vòng | Chuyện gì xảy ra |
+|---|---|---|---|
+| 31 | 2.1504 | 38 | 3 chủ đề vẫn đúng, nhưng câu 6 ("pin vẫn trâu và máy không bị nóng") bị xếp vào chủ đề giá, vì từ "máy" có trọng số cao trong chủ đề giá |
+| 39 | 2.2341 | 52 | Một chủ đề gộp "máy, pin, giá", camera đứng riêng, chủ đề còn lại chỉ có câu 5 |
+| 49 | 2.2688 | 18 | Gộp pin và giá thành một chủ đề (giá, máy, pin, hợp_lý); camera bị tách thành chụp đêm và chân dung |
+| 65 | 2.2696 | 27 | Giống seed 49 |
+| 91 | 2.2390 | 23 | Gộp pin và giá; camera bị tách thành chụp ngày/chân dung và chụp đêm (hơi, nhiễu, mờ, đêm) |
+| 96 | 2.2388 | 17 | Giống seed 91 |
+
+Các seed sai đều có loss lớn hơn các seed đúng (khoảng 2.15 đến 2.27, so với 2.108). Như vậy NMF dừng ở một cực tiểu địa phương kém hơn. Đây là lý do nhóm em chạy nhiều lần rồi lấy lần có loss nhỏ nhất (`n_restarts=5`).
+
+### 1.2. So sánh: V là tf × idf, không chuẩn hóa
+
+Trước đó nhóm em dùng V = tf × idf, không chuẩn hóa (`norm=None`), và chạy cùng 5 seed:
+
+| Seed | Loss cuối | Tách đúng |
+|---|---|---|
+| 0 | 10.7554 | Không |
+| 1 | 10.7455 | Có |
+| 2 | 11.0324 | Không |
+| 3 | 10.7288 | Có |
+| 4 | 10.7517 | Không |
+
+Không chuẩn hóa thì chỉ 2/5 seed tách đúng, các seed còn lại cũng gộp pin với giá và tách camera làm đôi. Khi chuẩn hóa L2, mỗi câu có độ dài vector bằng 1. Câu dài (ví dụ câu 1 có 7 từ) không còn lấn át câu ngắn (câu 5 chỉ có 2 từ), nên các chủ đề cân bằng hơn. Loss ở 1.2 lớn hơn nhiều so với 1.1 chỉ vì V chưa chuẩn hóa có giá trị lớn hơn, không so sánh trực tiếp được.
+
+Ví dụ câu 0, các giá trị khác 0 của cột V trước và sau chuẩn hóa: (3.833, 2.609, 2.609) thành (0.72, 0.49, 0.49).
