@@ -84,7 +84,7 @@ Cách lấy 300 bài: xáo trộn chỉ số của split test bằng `np.random.
 
 Sau khi lọc, không có bài nào còn dưới 3 câu dùng được.
 
-Nhóm em in ngẫu nhiên 20 câu bị loại để kiểm tra. Phần lớn là chú thích ảnh hoặc tên người kèm chức vụ ("Thủ tướng Canada Justin Trudeau.", "Xe tăng M1A2 Abrams của Mỹ.", "(Ảnh minh hoạ).", "Video: Guardian."), mảnh câu do tách câu sai hoặc dữ liệu bị cắt ("ngã gục ngay bục giảng.", "Và hiển nhiên, trái ng"), và câu nói ngắn trong trích dẫn ("Vẫn chưa ngã ngũ.", "Thì không nói được."). Các câu bị loại vì trùng đều là chú thích ảnh lặp lại ở cuối bài, ví dụ "Cố vấn an ninh quốc gia Mỹ John Bolton.". Trong 20 câu này nhóm em không thấy câu nào mang nội dung chính của bài. Có vài câu như "Đêm trời lạnh." có nghĩa nhưng chỉ là câu miêu tả phụ.
+Nhóm em in ngẫu nhiên 20 câu bị loại để kiểm tra. Phần lớn là chú thích ảnh hoặc tên người kèm chức vụ ("Thủ tướng Canada Justin Trudeau.", "Xe tăng M1A2 Abrams của Mỹ.", "(Ảnh minh hoạ).", "Video: Guardian."), mảnh câu do tách câu sai hoặc dữ liệu bị cắt ("ngã gục ngay bục giảng.", "Và hiển nhiên, trái ng"), và câu nói ngắn trong trích dẫn ("Vẫn chưa ngã ngũ.", "Thì không nói được."). Nhóm em xem thêm toàn bộ 34 câu bị loại vì trùng. Phần lớn nằm ở cuối bài và là chú thích ảnh lặp lại, ví dụ "Cố vấn an ninh quốc gia Mỹ John Bolton.". Vài câu là câu nội dung được lặp lại ở cuối bài, có lẽ do dùng lại làm chú thích ảnh, ví dụ "Thời gian qua, các trạm thu giá chưa đổi tên vì chờ quyết định của Tổng cục Đường bộ.". Vì chỉ bỏ các lần xuất hiện sau, câu nội dung vẫn còn ở vị trí đầu tiên nên không bị mất. Trong 20 câu in ngẫu nhiên nhóm em không thấy câu nào mang nội dung chính của bài. Có vài câu như "Đêm trời lạnh." có nghĩa nhưng chỉ là câu miêu tả phụ.
 
 ### 3.2. Chạy lại tin_mau_1
 
