@@ -1,4 +1,5 @@
 """Vài kiểm tra nhỏ cho hàm NMF tự viết trong src/nmf.py."""
+import sys
 import warnings
 
 import numpy as np
@@ -9,6 +10,8 @@ from src.nmf import init_wh, nmf, normalize
 
 # chạy đủ 200 vòng nên sklearn sẽ báo chưa hội tụ, bỏ qua cảnh báo này
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
+# để in được tiếng Việt khi chạy trên Windows
+sys.stdout.reconfigure(encoding="utf-8")
 
 V = np.random.default_rng(1).random((12, 8))
 k = 3

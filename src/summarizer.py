@@ -33,14 +33,14 @@ def select_grs(H, n):
     return list(np.argsort(-score)[:n])
 
 
-def nmf_select(mat, n, k, method, seed):
+def nmf_select(mat, n, k, method, seed, n_restarts=5):
     """Chạy NMF trên mat["V"] rồi chọn câu. Trả về chỉ số câu đã chọn, W và H."""
     V = mat["V"]
     # văn bản ngắn thì không lấy được nhiều hơn số câu đang có
     n = min(n, V.shape[1])
     k = min(k, V.shape[0], V.shape[1])
 
-    res = fit_nmf(V, k, seed=seed)
+    res = fit_nmf(V, k, n_restarts=n_restarts, seed=seed)
     W, H = normalize(res["W"], res["H"])
     if method == "topic":
         cols = select_topic(H, n)

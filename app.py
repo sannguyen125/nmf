@@ -15,6 +15,7 @@ from src.summarizer import grs_scores, select_grs, select_topic, summarize
 from src.vectorize import build_matrix
 
 DATA = Path(__file__).parent / "data"
+RESULTS = Path(__file__).parent / "results"
 SAMPLES = {
     "Tin mẫu 1: HLV Park Hang-seo và bánh gạo cay": "tin_mau_1",
     "Tin mẫu 2: Doanh nghiệp Nhật chuyển nhà máy sang Việt Nam": "tin_mau_2",
@@ -301,6 +302,49 @@ def tab_tom_tat():
         st.caption("Số thứ tự câu tính từ 1 theo thứ tự trong văn bản gốc.")
 
 
+def tab_thu_nghiem():
+    """Chỉ đọc kết quả đã lưu trong results/, không chạy lại thí nghiệm."""
+    st.header("Thử nghiệm trên bộ VietNews")
+    if not (RESULTS / "bang_ket_qua.csv").exists():
+        st.info("Chưa có kết quả. Hãy chạy `python thu_nghiem.py` trước.")
+        return
+
+    st.write("300 bài lấy ngẫu nhiên từ split test của VietNews (seed 42, chỉ giữ bài có 5 đến 40 câu). "
+             "Mỗi phương pháp lấy 3 câu, so với sapo của bài báo bằng ROUGE (F1, tính theo âm tiết).")
+    with st.expander("Thống kê dữ liệu"):
+        st.text((RESULTS / "thong_ke.txt").read_text(encoding="utf-8"))
+
+    st.subheader("Bảng kết quả")
+    table = pd.read_csv(RESULTS / "bang_ket_qua.csv", encoding="utf-8-sig")
+    table.columns = ["Phương pháp", "ROUGE-1", "ROUGE-2", "ROUGE-L", "Thời gian (ms/bài)"]
+    st.dataframe(table, hide_index=True)
+    st.caption("Thời gian chỉ tính bước chọn câu, chưa tính tiền xử lý (xem phần thống kê dữ liệu).")
+    st.image(str(RESULTS / "rouge_6_phuong_phap.png"))
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.subheader("NMF theo số chủ đề k")
+        st.image(str(RESULTS / "nmf_theo_k.png"))
+    with c2:
+        st.subheader("Vị trí câu được chọn")
+        st.image(str(RESULTS / "vi_tri_cau.png"))
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.subheader("Loss trên một bài")
+        st.image(str(RESULTS / "loss_mot_bai.png"))
+    with c2:
+        st.subheader("NMF với 5 seed (50 bài)")
+        st.write("Mỗi seed chỉ chạy NMF một lần, không chọn lần có loss nhỏ nhất.")
+        st.dataframe(pd.read_csv(RESULTS / "nmf_theo_seed.csv", encoding="utf-8-sig", index_col=0))
+
+    st.subheader("Nhận xét")
+    # bỏ dòng tiêu đề của file
+    st.markdown((RESULTS / "nhan_xet.md").read_text(encoding="utf-8").split("\n", 1)[1])
+    with st.expander("Ví dụ trên 2 bài"):
+        st.markdown((RESULTS / "vi_du.md").read_text(encoding="utf-8"))
+
+
 st.set_page_config(page_title="NMF và tóm tắt văn bản", layout="wide")
 st.title("NMF và tóm tắt văn bản dựa trên chủ đề")
 tab1, tab2, tab3 = st.tabs(["Mô phỏng NMF", "Tóm tắt văn bản", "Thử nghiệm"])
@@ -309,4 +353,4 @@ with tab1:
 with tab2:
     tab_tom_tat()
 with tab3:
-    st.info("Phần thử nghiệm trên bộ VietNews sẽ được thêm sau.")
+    tab_thu_nghiem()

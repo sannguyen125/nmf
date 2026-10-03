@@ -1,0 +1,12 @@
+Số bài: 300
+Số câu trung bình mỗi bài: 16.93
+Số câu dùng được trung bình mỗi bài: 16.01
+Số âm tiết trung bình mỗi bài: 499.26
+Số câu trung bình của abstract: 1.20
+Số âm tiết trung bình của abstract: 34.41
+Thời gian tiền xử lý trung bình mỗi bài (tách câu, tách từ, tạo V): 32.5 ms
+NMF-topic: 49/50 bài có tập câu được chọn thay đổi giữa 5 seed (98%)
+NMF-grs: 49/50 bài có tập câu được chọn thay đổi giữa 5 seed (98%)
+NMF-topic: 3 câu được chọn thuộc trung bình 3.00 chủ đề khác nhau, 0.00% số bài có cả 3 câu cùng một chủ đề
+NMF-grs: 3 câu được chọn thuộc trung bình 1.45 chủ đề khác nhau, 57.00% số bài có cả 3 câu cùng một chủ đề
+Hình loss: bài 18425, dừng sau 42 vòng, loss từ 3.0785 xuống 2.3742
