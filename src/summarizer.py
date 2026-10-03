@@ -20,11 +20,16 @@ def select_topic(H, n):
     return chosen
 
 
-def select_grs(H, n):
+def grs_scores(H):
     """Theo Lee et al. (2009): trọng số chủ đề w_k = tổng hàng k / tổng H,
-    điểm câu = tổng w_k * H[k, j]. Lấy n câu điểm cao nhất."""
+    điểm câu score_j = tổng w_k * H[k, j]."""
     w = H.sum(axis=1) / H.sum()
-    score = w @ H
+    return w, w @ H
+
+
+def select_grs(H, n):
+    """Lấy n câu có điểm GRS cao nhất."""
+    w, score = grs_scores(H)
     return list(np.argsort(-score)[:n])
 
 
