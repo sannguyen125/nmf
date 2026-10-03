@@ -46,3 +46,17 @@ Trước đó nhóm em dùng V = tf × idf, không chuẩn hóa (`norm=None`), v
 Không chuẩn hóa thì chỉ 2/5 seed tách đúng, các seed còn lại cũng gộp pin với giá và tách camera làm đôi. Khi chuẩn hóa L2, mỗi câu có độ dài vector bằng 1. Câu dài (ví dụ câu 1 có 7 từ) không còn lấn át câu ngắn (câu 5 chỉ có 2 từ), nên các chủ đề cân bằng hơn. Loss ở 1.2 lớn hơn nhiều so với 1.1 chỉ vì V chưa chuẩn hóa có giá trị lớn hơn, không so sánh trực tiếp được.
 
 Ví dụ câu 0, các giá trị khác 0 của cột V trước và sau chuẩn hóa: (3.833, 2.609, 2.609) thành (0.72, 0.49, 0.49).
+
+## 2. Các bài tin mẫu
+
+Ba bài lấy từ split test của bộ `harouzie/vietnews`. Văn bản gốc đã tách từ sẵn nên nhóm em bỏ dấu `_` và ghép lại dấu câu (hàm `detokenize` trong `src/preprocess.py`), ngoài ra giữ nguyên.
+
+| File | Vị trí trong split test | guid | Tiêu đề |
+|---|---|---|---|
+| tin_mau_1.txt | 11720 | 11735 | Báo Hàn nói HLV Park Hang - seo giúp tăng doanh thu bánh gạo cay |
+| tin_mau_2.txt | 2591 | 2592 | Nhiều doanh nghiệp Nhật Bản chuyển nhà máy sang Việt Nam |
+| tin_mau_3.txt | 3173 | 3174 | Xem người Nhật trình diễn công nghệ lót ống không đào đường |
+
+Tóm tắt mẫu (abstract) nằm trong các file `tin_mau_*_tomtat.txt`. Cuối bài thường có chú thích ảnh (ví dụ "Huấn luyện viên Park Hang - seo.", "... - Ảnh: QUANG KHẢI"), và các chú thích này bị tách thành câu riêng.
+
+Nhận xét khi chạy 6 phương pháp trên tin_mau_1 (n = 3, k = 3): câu chú thích ảnh "Huấn luyện viên Park Hang - seo." xuất hiện 2 lần (câu 0 và câu 14). TextRank chọn cả hai câu này vì hai câu giống hệt nhau nên cosine bằng 1. NMF-topic và LSA cũng chọn một trong hai câu đó. Lý do là sau khi chuẩn hóa L2, câu rất ngắn chỉ gồm từ khóa của một chủ đề sẽ có giá trị H lớn ở chủ đề đó.

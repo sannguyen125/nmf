@@ -17,6 +17,17 @@ def load_stopwords(path=STOPWORD_FILE):
 STOPWORDS = load_stopwords()
 
 
+def detokenize(text):
+    """Văn bản VietNews đã tách từ sẵn (Hưng_Yên, dấu câu cách rời).
+    Bỏ _ và ghép lại dấu câu để đưa về dạng bình thường."""
+    text = text.replace("_", " ")
+    text = re.sub(r" ([,.;:!?)%…])", r"\1", text)
+    text = text.replace("( ", "(")
+    # ngoặc kép: " abc " -> "abc"
+    text = re.sub(r"([\"']) (.*?) \1", r"\1\2\1", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def split_sentences(text):
     # tách theo dòng trước, vì có văn bản xuống dòng mà không có dấu chấm
     sentences = []
