@@ -2,7 +2,7 @@
 import numpy as np
 
 from src.nmf import fit_nmf, normalize, top_words
-from src.preprocess import preprocess
+from src.preprocess import MIN_SYLLABLES, preprocess
 from src.vectorize import build_matrix
 
 
@@ -58,9 +58,9 @@ def nmf_grs(sentences, mat, n=3, k=3, seed=42):
     return nmf_select(mat, n, k, "grs", seed)[0]
 
 
-def summarize(text, n_sentences=3, k=3, method="topic", seed=42):
+def summarize(text, n_sentences=3, k=3, method="topic", seed=42, min_syllables=MIN_SYLLABLES):
     """Tóm tắt một văn bản. Câu được chọn xếp theo thứ tự trong bài."""
-    sentences = preprocess(text)
+    sentences = preprocess(text, min_syllables=min_syllables)
     if not sentences:
         raise ValueError("Văn bản rỗng")
     mat = build_matrix(sentences)

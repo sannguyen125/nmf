@@ -6,6 +6,7 @@ from underthesea import sent_tokenize, word_tokenize
 
 STOPWORD_FILE = Path(__file__).resolve().parent.parent / "data" / "stopwords_vi.txt"
 MIN_WORDS = 2
+MIN_SYLLABLES = 8  # trang mô phỏng đặt 0 vì câu mẫu ngắn
 
 
 def load_stopwords(path=STOPWORD_FILE):
@@ -52,17 +53,42 @@ def clean_words(tokenized, stopwords=STOPWORDS):
     return words
 
 
-def preprocess(text, stopwords=STOPWORDS):
+def count_syllables(sent):
+    # đếm các cụm cách nhau bởi dấu cách có chứa chữ hoặc số, bỏ qua dấu câu đứng riêng
+    return sum(1 for w in sent.split() if re.search(r"\w", w))
+
+
+def dedup_key(sent):
+    # khóa để so câu trùng: chữ thường, bỏ dấu câu
+    return " ".join(re.sub(r"[^\w\s]", " ", sent.lower()).split())
+
+
+def preprocess(text, stopwords=STOPWORDS, min_syllables=MIN_SYLLABLES):
     """Trả về danh sách câu, mỗi câu là dict gồm câu gốc, câu đã tách từ và các từ còn lại.
-    Câu còn dưới MIN_WORDS từ thì used=False, không đưa vào ma trận."""
+    Câu bị loại (trùng câu trước, ngắn hơn min_syllables âm tiết, hoặc còn dưới MIN_WORDS từ)
+    vẫn giữ để hiển thị nhưng used=False, lý do ghi ở reason."""
     result = []
+    seen = set()
     for sent in split_sentences(text):
         tokenized = word_tokenize(sent, format="text")
         words = clean_words(tokenized, stopwords)
+
+        key = dedup_key(sent)
+        if key in seen:
+            reason = "trùng"
+        elif count_syllables(sent) < min_syllables:
+            reason = "ngắn"
+        elif len(words) < MIN_WORDS:
+            reason = "ít từ"
+        else:
+            reason = ""
+        seen.add(key)
+
         result.append({
             "original": sent,
             "tokenized": tokenized,
             "words": words,
-            "used": len(words) >= MIN_WORDS,
+            "used": reason == "",
+            "reason": reason,
         })
     return result

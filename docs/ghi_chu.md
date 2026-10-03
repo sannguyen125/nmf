@@ -60,3 +60,41 @@ Ba bài lấy từ split test của bộ `harouzie/vietnews`. Văn bản gốc �
 Tóm tắt mẫu (abstract) nằm trong các file `tin_mau_*_tomtat.txt`. Cuối bài thường có chú thích ảnh (ví dụ "Huấn luyện viên Park Hang - seo.", "... - Ảnh: QUANG KHẢI"), và các chú thích này bị tách thành câu riêng.
 
 Nhận xét khi chạy 6 phương pháp trên tin_mau_1 (n = 3, k = 3): câu chú thích ảnh "Huấn luyện viên Park Hang - seo." xuất hiện 2 lần (câu 0 và câu 14). TextRank chọn cả hai câu này vì hai câu giống hệt nhau nên cosine bằng 1. NMF-topic và LSA cũng chọn một trong hai câu đó. Lý do là sau khi chuẩn hóa L2, câu rất ngắn chỉ gồm từ khóa của một chủ đề sẽ có giá trị H lớn ở chủ đề đó.
+
+## 3. Lọc câu trùng và câu quá ngắn
+
+Từ nhận xét ở mục 2, nhóm em thêm hai bước lọc câu vào tiền xử lý. Hai bước này áp dụng như nhau cho mọi phương pháp, kể cả Lead-3 và Random-3:
+
+- Bỏ câu trùng: hai câu được coi là trùng nếu giống nhau sau khi đưa về chữ thường và bỏ dấu câu. Chỉ giữ lần xuất hiện đầu tiên.
+- Bỏ câu ngắn: câu gốc có ít hơn `min_syllables` âm tiết thì bị loại. Mặc định là 8 cho ứng dụng và thử nghiệm. Trang mô phỏng đặt 0, vì câu "Camera chụp đêm hơi mờ và nhiễu." chỉ có 7 âm tiết.
+
+Câu bị loại vẫn được hiển thị nhưng không đưa vào ma trận V và không được chọn. Lead-3 lấy 3 câu đầu tiên trong số các câu còn lại. Ngoài ra vẫn giữ điều kiện cũ: câu còn dưới 2 từ sau khi bỏ stopword thì cũng bị loại (cột "ít từ" ở bảng dưới).
+
+### 3.1. Thống kê trên 300 bài thử nghiệm
+
+Cách lấy 300 bài: xáo trộn chỉ số của split test bằng `np.random.default_rng(42).permutation`, rồi lấy lần lượt các bài có 5 đến 40 câu (đếm sau `detokenize` và tách câu) cho đến khi đủ 300 bài. Ở lần chạy này, 300 bài đầu tiên sau khi xáo trộn đều thỏa điều kiện.
+
+| | Số câu | Tỉ lệ |
+|---|---|---|
+| Giữ lại | 4803 | 94.55% |
+| Loại vì trùng | 34 | 0.67% |
+| Loại vì ngắn (< 8 âm tiết) | 214 | 4.21% |
+| Loại vì còn dưới 2 từ sau khi bỏ stopword | 29 | 0.57% |
+| Tổng | 5080 | 100% |
+
+Sau khi lọc, không có bài nào còn dưới 3 câu dùng được.
+
+Nhóm em in ngẫu nhiên 20 câu bị loại để kiểm tra. Phần lớn là chú thích ảnh hoặc tên người kèm chức vụ ("Thủ tướng Canada Justin Trudeau.", "Xe tăng M1A2 Abrams của Mỹ.", "(Ảnh minh hoạ).", "Video: Guardian."), mảnh câu do tách câu sai hoặc dữ liệu bị cắt ("ngã gục ngay bục giảng.", "Và hiển nhiên, trái ng"), và câu nói ngắn trong trích dẫn ("Vẫn chưa ngã ngũ.", "Thì không nói được."). Các câu bị loại vì trùng đều là chú thích ảnh lặp lại ở cuối bài, ví dụ "Cố vấn an ninh quốc gia Mỹ John Bolton.". Trong 20 câu này nhóm em không thấy câu nào mang nội dung chính của bài. Có vài câu như "Đêm trời lạnh." có nghĩa nhưng chỉ là câu miêu tả phụ.
+
+### 3.2. Chạy lại tin_mau_1
+
+Sau khi lọc, tin_mau_1 còn 13/16 câu dùng được. Câu 0 bị loại vì ngắn, câu 14 vì trùng câu 0, câu 15 ("Món bánh gạo xào cay Hàn Quốc.") vì ngắn. Không phương pháp nào còn chọn câu "Huấn luyện viên Park Hang - seo.":
+
+| Phương pháp | Câu được chọn |
+|---|---|
+| Lead-3 | 1, 2, 3 |
+| Random-3 | 1, 9, 10 |
+| LSA | 5, 7, 11 |
+| TextRank | 1, 4, 5 |
+| NMF-topic | 1, 5, 13 |
+| NMF-grs | 1, 2, 7 |

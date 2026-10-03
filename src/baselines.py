@@ -6,12 +6,13 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 def lead(sentences, mat, n=3):
-    return list(range(min(n, len(sentences))))
+    """n câu đầu tiên trong số các câu không bị loại."""
+    return mat["sent_idx"][:n]
 
 
 def random_pick(sentences, mat, n=3, seed=42):
     rng = np.random.default_rng(seed)
-    idx = rng.choice(len(sentences), size=min(n, len(sentences)), replace=False)
+    idx = rng.choice(mat["sent_idx"], size=min(n, len(mat["sent_idx"])), replace=False)
     return sorted(int(i) for i in idx)
 
 

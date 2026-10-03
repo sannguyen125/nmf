@@ -9,7 +9,7 @@ def build_matrix(sentences):
     câu ứng với từng cột của V."""
     sent_idx = [i for i, s in enumerate(sentences) if s["used"]]
     if not sent_idx:
-        raise ValueError("Không có câu nào đủ từ để tạo ma trận")
+        raise ValueError("Không có câu nào đủ dài để tạo ma trận")
     docs = [" ".join(sentences[i]["words"]) for i in sent_idx]
 
     # văn bản đã tách từ rồi nên chỉ cần split theo khoảng trắng
